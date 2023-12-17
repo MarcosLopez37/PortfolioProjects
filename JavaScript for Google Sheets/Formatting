@@ -1,0 +1,41 @@
+**For those ad hoc requests where it's necessary to download a large report with raw data, this will organize it into a friendlier layout to begin working with**
+
+function Formatting() {
+  // Choose Sheet you are working with based off of the spreadsheet URL
+  // Update URL in the next line. Must be in quotes
+  let spreadsheetUrl = '-Insert URL Here-';
+
+  // Open the spreadsheet by its URL
+  let spreadsheet = SpreadsheetApp.openByUrl(spreadsheetUrl);
+
+  // Will modify first sheet [0], to modify a different sheet, adjust by increasing accordingly
+  let sheet = spreadsheet.getSheets()[0];
+
+  // Freeze the top row for labeled filters
+  sheet.setFrozenRows(1);
+  
+  // Create filter for the entire sheet
+  sheet.getRange(1, 1, sheet.getMaxRows(), sheet.getMaxColumns()).createFilter();
+
+  // Apply Alternating Color Format to the data range only
+  let dataRangeForBanding = sheet.getDataRange();
+  dataRangeForBanding.applyRowBanding(SpreadsheetApp.BandingTheme.LIGHT_GREY);
+
+  // Set column widths based on the length of the header row
+  let headers = sheet.getRange(1, 1, 1, sheet.getMaxColumns()).getValues()[0];
+
+  // Call hideEmptyColumns function
+  hideEmptyColumns();
+
+  // HideEmptyColumns function
+  function hideEmptyColumns() {
+    headers = sheet.getRange(1, 1, 1, sheet.getMaxColumns()).getValues()[0];
+
+    for (let i = headers.length - 1; i >= 0; i--) {
+      let column = sheet.getRange(2, i + 1, sheet.getMaxRows() - 1, 1).getValues();
+      if (column.every(function (cell) { return cell[0] === ''; })) {
+        sheet.hideColumns(i + 1);
+      }
+    }
+  }
+}
